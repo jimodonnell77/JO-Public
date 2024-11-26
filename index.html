@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge;chrome=1">
+      <title>LaunchDarkly Homework Assignment</title>
+      // Load the javascript API here
+      <script src="https://unpkg.com/launchdarkly-js-client-sdk@3"></script>
+    </head>
+    <body style="margin: 0;
+    background: #373841;
+    color: white;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center">
+      <script>
+      function main()
+      {
+        // Set clientSideID to your LaunchDarkly client-side ID 
+        // You can find the clientSideID under the Environment menu in the UI
+        const clientSideID = '66c4a57fcf3a1b10c00af0e7';
+
+        // Set flagKey to the feature flag key you want to evaluate
+        // You can find the flagKey on the Flag's page or the settings page
+        const flagKey = 'sample-feature-1';
+
+        // Define the evaluation context. This context should appear on your
+        // LD contexts dashboard soon after you run the index.html file
+        const context = {
+          kind: 'user',
+          key: 'example-context-key2',
+          name: 'Jim',
+          country: 'United States'
+        };
+
+        var div = document.createElement('div');
+        document.body.appendChild(div);
+        div.appendChild(document.createTextNode('Initializing...'));
+
+        const ldclient = LDClient.initialize(clientSideID, context);
+
+        function render() {
+          // This fetches the feature flag value from LD 
+          // If the call to LD fails or the feature flag isn't recognized the default
+          // 	value will be false	
+          const flagValue = ldclient.variation(flagKey, false);
+          // This is the line that uses the value of the feature flag 
+          // It prints both the flag key and the flag value
+          const label = 'The ' + flagKey + ' feature flag evaluates to ' + flagValue + '.';
+          // The flag value is a boolean value so it can be used to select different
+          // 	values such as the background color below
+          document.body.style.background = flagValue ? '#00844B' : '#373841';
+          div.replaceChild(document.createTextNode(label), div.firstChild);
+        }
+
+	
+        ldclient.on('initialized', () => {
+          div.replaceChild(document.createTextNode('SDK successfully initialized!'), div.firstChild);
+        });
+        ldclient.on('failed', () => {
+          div.replaceChild(document.createTextNode('SDK failed to initialize'), div.firstChild);
+        });
+        ldclient.on('ready', render);
+        // This is the listener for the feature toggle 
+        // When the feature flag is toggled in the LD UI the ldclient triggers a change event
+        ldclient.on('change', render);
+
+      }
+      main();
+      </script>
+    </body>
+  </html>
